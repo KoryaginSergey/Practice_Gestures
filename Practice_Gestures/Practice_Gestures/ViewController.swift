@@ -19,6 +19,8 @@ class ViewController: UIViewController {
     let rotationGestureRecognizer = UIRotationGestureRecognizer()
     let tapGestureRecognizer = UITapGestureRecognizer()
     var panGestureAnchorPoint: CGPoint?
+    var scale: CGFloat = 0.0
+    var rotate: CGFloat = 1.0
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -38,9 +40,9 @@ class ViewController: UIViewController {
         
         pinchGestureRecognizer.delegate = self
         rotationGestureRecognizer.delegate = self
-        panGestureRecognizer.delegate = self
-        tapGestureRecognizer.delegate = self
+       
     }
+    
     @objc func handlePanGesture(_ gestureRecognizer: UIPanGestureRecognizer) {
         
         switch gestureRecognizer.state {
@@ -68,8 +70,8 @@ class ViewController: UIViewController {
         
         switch gestureRecognizer.state {
         case .changed, .began:
-            redView.transform = CGAffineTransform.identity.scaledBy(x: gestureRecognizer.scale,
-                                                                    y: gestureRecognizer.scale)
+            scale = gestureRecognizer.scale
+            redView.transform = CGAffineTransform.identity.scaledBy(x: scale, y: scale).rotated(by: rotate)
         default:
             break
         }
@@ -79,7 +81,8 @@ class ViewController: UIViewController {
         
         switch gestureRecognizer.state {
         case .changed, .began:
-            redView.transform = CGAffineTransform.identity.rotated(by: gestureRecognizer.rotation)
+            rotate = gestureRecognizer.rotation
+            redView.transform = CGAffineTransform.identity.scaledBy(x: scale, y: scale).rotated(by: rotate)
         default:
             break
         }
@@ -97,11 +100,10 @@ class ViewController: UIViewController {
 
 extension ViewController: UIGestureRecognizerDelegate {
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer,
-                           shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool
-    {
-        let simultaneousRecognizers = [rotationGestureRecognizer, pinchGestureRecognizer,
-                                       panGestureRecognizer, tapGestureRecognizer]
+                           shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        let simultaneousRecognizers = [pinchGestureRecognizer, rotationGestureRecognizer]
         return simultaneousRecognizers.contains(gestureRecognizer) &&
                simultaneousRecognizers.contains(otherGestureRecognizer)
     }
 }
+
